@@ -1,0 +1,12 @@
+{
+  "name": "web-banding-wa",
+  "version": "1.0.0",
+  "description": "Form Banding WhatsApp dengan notifikasi Telegram dan Email",
+  "main": "api/kirim.js",
+  "scripts": {
+    "start": "echo 'Vercel handles the start script'"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.13" 
+  }
+}
