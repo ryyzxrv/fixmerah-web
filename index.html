@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Banding WhatsApp</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #001f3f, #003366, #00ffcc);
+      font-family: sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #00ffee;
+      border-radius: 15px;
+      padding: 30px;
+      width: 320px;
+      box-shadow: 0 0 25px #00ffee;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #00ffee;
+      text-shadow: 0 0 10px #00ffee;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #00ffee;
+      color: #001f3f;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover:not(:disabled) { 
+      background-color: #00ccaa;
+      box-shadow: 0 0 15px #00ffee;
+    }
+
+    button:disabled { 
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      min-height: 20px;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #00ffee;
+    }
+
+    footer a {
+      color: #00ffee;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Form Banding WhatsApp</h1>
+    <input id="nomor" type="text" placeholder="Masukkan nomor WhatsApp (minimal 12 digit)" />
+    <button id="kirim">Kirim Banding</button>
+    <div id="status" class="status"></div>
+    <footer>
+      Powered by <a href="https://t.me/kerasakti6" target="_blank">@kerasakti6</a>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('kirim').addEventListener('click', async () => {
+      const kirimButton = document.getElementById('kirim');
+      const rawNomor = document.getElementById('nomor').value;
+      const status = document.getElementById('status');
+
+      // 1. Pembersihan Input
+      const nomor = rawNomor.replace(/\D/g, '').trim(); 
+
+      // 2. Validasi
+      if (!nomor || nomor.length < 12) {
+        status.textContent = "⚠️ Nomor tidak valid, minimal 12 digit angka.";
+        status.style.color = "orange";
+        return;
+      }
+
+      // 3. Persiapan Pengiriman (UX)
+      kirimButton.disabled = true;
+      status.textContent = "⏳ Sedang mengirim banding...";
+      status.style.color = "#00ffee";
+
+      try {
+        const res = await fetch('/api/kirim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nomor })
+        });
+
+        const data = await res.json();
+        
+        if (data.success) {
+          status.textContent = "✅ Berhasil dikirim! Notifikasi sudah masuk.";
+          status.style.color = "lime";
+          document.getElementById('nomor').value = '';
+        } else {
+          const errorMessage = data.message || "Gagal mengirim. Coba lagi.";
+          status.textContent = `❌ Gagal: ${errorMessage}`;
+          status.style.color = "red";
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        status.textContent = "❌ Gagal koneksi ke server.";
+        status.style.color = "red";
+      } finally {
+        // 4. Selesai
+        kirimButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
